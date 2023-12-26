@@ -1,3 +1,9 @@
+/*************************
+* Author: Kitov D.A.     *
+* Date: 18.12.2023       *
+* Name: Tetris           *
+*************************/
+
 #include <iostream>
 #include <stdlib.h>
 #include <conio.h>
@@ -135,11 +141,11 @@ block getRandomBlock() {
 enum CollisionCodes { WALL = 1, BLOCK = 2, NOCOLLISION = 0 };
 
 int checkCollision(block currentBlock, vector<string> currentField) {
-  for(int i = 0; i < currentBlock.rotations[currentBlock.currentRotationCode].size(); ++i) {
-    for(int j = 0; j < currentBlock.rotations[currentBlock.currentRotationCode][i].size(); ++j) {
-      if(currentBlock.rotations[currentBlock.currentRotationCode][i][j] != ' ') {
-        if(currentField[i + currentBlock.coordY][j  + currentBlock.coordX] == '#') return WALL;
-        if(currentField[i + currentBlock.coordY][j  + currentBlock.coordX] == '*') return BLOCK;
+  for(int currentBlockRowIndex = 0; currentBlockRowIndex < currentBlock.rotations[currentBlock.currentRotationCode].size(); ++currentBlockRowIndex) {
+    for(int currentBlockColumnIndex = 0; currentBlockColumnIndex < currentBlock.rotations[currentBlock.currentRotationCode][currentBlockRowIndex].size(); ++currentBlockColumnIndex) {
+      if(currentBlock.rotations[currentBlock.currentRotationCode][currentBlockRowIndex][currentBlockColumnIndex] != ' ') {
+        if(currentField[currentBlockRowIndex + currentBlock.coordY][currentBlockColumnIndex  + currentBlock.coordX] == '#') return WALL;
+        if(currentField[currentBlockRowIndex + currentBlock.coordY][currentBlockColumnIndex  + currentBlock.coordX] == '*') return BLOCK;
       }
     }
   }
@@ -147,10 +153,10 @@ int checkCollision(block currentBlock, vector<string> currentField) {
 }
 
 void putBlockOnField(block &currentBlock, vector<string> &currentField) {
-  for(int i = 0; i < currentBlock.rotations[currentBlock.currentRotationCode].size(); ++i) {
-    for(int j = 0; j < currentBlock.rotations[currentBlock.currentRotationCode][i].size(); ++j) {
-      if(currentBlock.rotations[currentBlock.currentRotationCode][i][j] == '*') {
-        currentField[i + currentBlock.coordY][j + currentBlock.coordX] = currentBlock.rotations[currentBlock.currentRotationCode][i][j];
+  for(int currentBlockRowIndex = 0; currentBlockRowIndex < currentBlock.rotations[currentBlock.currentRotationCode].size(); ++currentBlockRowIndex) {
+    for(int currentBlockColumnIndex = 0; currentBlockColumnIndex < currentBlock.rotations[currentBlock.currentRotationCode][currentBlockRowIndex].size(); ++currentBlockColumnIndex) {
+      if(currentBlock.rotations[currentBlock.currentRotationCode][currentBlockRowIndex][currentBlockColumnIndex] == '*') {
+        currentField[currentBlockRowIndex + currentBlock.coordY][currentBlockColumnIndex + currentBlock.coordX] = currentBlock.rotations[currentBlock.currentRotationCode][currentBlockRowIndex][currentBlockColumnIndex];
       }
     }
   }
@@ -162,10 +168,10 @@ void clearLineIfNeeded(vector<string> &currentField, int &score) {
   while(!isFieldEnded) {
     isFieldEnded = true;
 
-    for(int i = 1; i < currentField.size() - 1; ++i) {
-      if(currentField[i].compare("#********************#") == 0) {
-        for(int j = i; j > 0; --j) {
-          currentField[j] = currentField[j - 1];
+    for(int currentFieldRowIndex = 1; currentFieldRowIndex < currentField.size() - 1; ++currentFieldRowIndex) {
+      if(currentField[currentFieldRowIndex].compare("#********************#") == 0) {
+        for(int currentFieldRowSecondIndex = currentFieldRowIndex; currentFieldRowSecondIndex > 0; --currentFieldRowSecondIndex) {
+          currentField[currentFieldRowSecondIndex] = currentField[currentFieldRowSecondIndex - 1];
         }
 
         score += 10;
@@ -177,12 +183,12 @@ void clearLineIfNeeded(vector<string> &currentField, int &score) {
 }
 
 void clearFieldIfNeeded(block &currentBlock, vector<string> &currentField, int &score) {
-  for(int i = 1; i < currentField[0].size() - 1; ++i) {
-    if(currentField[0][i] == '*') {
+  for(int currentFieldRowIndex = 1; currentFieldRowIndex < currentField[0].size() - 1; ++currentFieldRowIndex) {
+    if(currentField[0][currentFieldRowIndex] == '*') {
       score = 0;
       currentField.clear();
-      for(int j = 0; j < mainField.size(); ++j) {
-        currentField.push_back(mainField[j]);
+      for(int mainFieldRowIndex = 0; mainFieldRowIndex < mainField.size(); ++mainFieldRowIndex) {
+        currentField.push_back(mainField[mainFieldRowIndex]);
       }
       currentBlock = getRandomBlock();
       break;
@@ -237,13 +243,18 @@ void controls(block &changedBlock, block &currentBlock, bool &isDownKeyPressed, 
 }
 
 int main() {
+  void* handle = GetStdHandle(STD_OUTPUT_HANDLE);
+  CONSOLE_CURSOR_INFO structCursorInfo;
+  GetConsoleCursorInfo(handle,&structCursorInfo);
+  structCursorInfo.bVisible = FALSE;
+  SetConsoleCursorInfo( handle, &structCursorInfo );
   setlocale(LC_ALL, "RUS");
   setRotations();
   srand(time(NULL));
 
   vector<string> currentField;
-  for(int i = 0; i < mainField.size(); ++i) {
-    currentField.push_back(mainField[i]);
+  for(int mainFieldRowIndex = 0; mainFieldRowIndex < mainField.size(); ++mainFieldRowIndex) {
+    currentField.push_back(mainField[mainFieldRowIndex]);
   }
 
   block currentBlock = getRandomBlock();
@@ -284,3 +295,4 @@ int main() {
   }
   return 0;
 }
+
